@@ -12,11 +12,11 @@ const appsToUnload = {};
 
 /**
  * 移除应用，就更改一下应用的状态，执行unload生命周期函数，执行清理操作
- * 
+ *
  * 其实一般情况是不会执行移除操作的，除非你手动调用unloadApplication方法
  * 单步调试会发现appsToUnload对象是个空对象，所以第一个if就return了，这里啥也没做
  * https://zh-hans.single-spa.js.org/docs/api#unloadapplication
- * */ 
+ * */
 export function toUnloadPromise(app) {
   return Promise.resolve().then(() => {
     // 应用信息
@@ -71,7 +71,8 @@ export function toUnloadPromise(app) {
 }
 
 // 移除完成，执行一些清理动作，其实就是从appsToUnload数组中移除该app，移除生命周期函数，更改app.status
-// 但应用不是真的被移除，后面再激活时不需要重新去下载资源,，只是做一些状态上的变更，当然load的那个过程还是需要的，这点可能需要再确认一下
+// 但应用不是真的被移除，后面再激活时不需要重新去下载资源,
+// 只是做一些状态上的变更，当然load的那个过程还是需要的
 function finishUnloadingApp(app, unloadInfo) {
   delete appsToUnload[toName(app)];
 

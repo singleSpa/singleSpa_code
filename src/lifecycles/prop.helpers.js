@@ -6,13 +6,14 @@ import { formatErrorMessage } from "../applications/app-errors.js";
 
 /**
  * 得到传递给子应用的props
- * @param {} appOrParcel => app 
+ * @param {} appOrParcel => app
  * 以下返回内容其实在官网也都有提到，比如singleSpa实例，目的是为了子应用不需要重复引入single-spa
  * return {
  *    ...customProps,
  *    name,
  *    mountParcel: mountParcel.bind(appOrParcel),
- *    singleSpa, 
+ *    singleSpa,
+ *    unmountSelf, 可能有
  * }
  */
 export function getProps(appOrParcel) {

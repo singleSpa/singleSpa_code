@@ -159,7 +159,7 @@ export function reasonableTime(appOrParcel, lifecycle) {
         reject(val);
       });
 
-    // 下面就没啥了，就是超时的一些提示信息
+    // 超时的一些提示信息
     setTimeout(() => maybeTimingOut(1), warningPeriod);
     setTimeout(() => maybeTimingOut(true), timeoutConfig.millis);
 

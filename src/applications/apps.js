@@ -25,9 +25,46 @@ import { assign } from "../utils/assign";
 
 const apps = [];
 
+// 一个完整的apps大概包含以下属性
+// const appItem = {
+//   activeWhen: function(location){},
+//   bootstrap: function(props){},
+//   customProps: {
+//     mainStore: {},
+//     name: '',
+//     singleSpa:{},
+//     mountParcel: function(){}
+//   },
+//   devtools: {
+//     overlays: {
+//       options: {},
+//       selectors: [],
+//     }
+//   },
+//   loadApp: function(){},
+//   loadErrorTime: null,
+//   mount: function(props){},
+//   name: 'main',
+//   parcels: {},
+//   status: "MOUNTED",
+//   timeouts: {
+//     bootstrap: {
+//       dieOnTimeout: false,
+//       millis: 3000,
+//       warningMillis: 1000,
+//     },
+//     mount: {},
+//     unload: {},
+//     unmount: {},
+//     update: {},
+//   },
+//   unload: function(){},
+//   unmount: function(){},
+// }
+
 // 将应用分为四大类，根据状态筛选对应的应用
 export function getAppChanges() {
-    // 需要去移除的应用
+  // 需要去移除的应用
   const appsToUnload = [],
     // 需要去卸载的应用
     appsToUnmount = [],
@@ -109,10 +146,18 @@ export function getAppStatus(appName) {
  *    activeWhen: activeWhen('/app1'),
  *    customProps: {}
  * })
- * @param {*} appNameOrConfig 应用的名字将会在single-spa中注册和引用, 并在开发工具中标记
- * @param {*} appOrLoadApp 必须是一个加载函数，返回一个应用或者一个Promise。
+ * @param {*} appNameOrConfig 应用的名字将会在single-spa中注册和引用, 并在开发工具中标记 'main'
+ * @param {*} appOrLoadApp 必须是一个加载函数，返回一个应用或者一个Promise。  () => SystemJS.import(appURL),
  * @param {*} activeWhen 必须是个纯函数, 该函数由window.location判断应用是否激活的一个方法，作为第一个参数被调用, 当应用应该被激活时它应该返回一个真值。
  * @param {*} customProps 在生命周期钩子函数执行时会被作为参数传入，传递给子应用的 props 对象
+ *
+ * 例如: const a = {
+    name,
+    () => SystemJS.import(appURL),
+    hashPrefix(hash),
+    {
+      mainStore: storeModule
+    }}
  */
 export function registerApplication(
   appNameOrConfig,
@@ -176,10 +221,12 @@ export function registerApplication(
   }
 }
 
+// 判断当前的应用是否被激活
 export function checkActivityFunctions(location = window.location) {
   return apps.filter((app) => app.activeWhen(location)).map(toName);
 }
 
+// 返回没有被注册的应用，并把没有注册的应用删除
 export function unregisterApplication(appName) {
   if (apps.filter((app) => toName(app) === appName).length === 0) {
     throw Error(
@@ -468,8 +515,8 @@ function sanitizeCustomProps(customProps) {
   return customProps ? customProps : {};
 }
 
-
-// 得到一个函数，函数负责判断浏览器当前地址是否和用户给定的baseURL相匹配，匹配返回true，否则返回false
+// 得到一个函数，函数负责判断浏览器当前地址是否和用户给定的baseURL相匹配，
+// 匹配返回true，否则返回false
 function sanitizeActiveWhen(activeWhen) {
   // []
   let activeWhenArray = Array.isArray(activeWhen) ? activeWhen : [activeWhen];
@@ -477,8 +524,8 @@ function sanitizeActiveWhen(activeWhen) {
   activeWhenArray = activeWhenArray.map((activeWhenOrPath) =>
     typeof activeWhenOrPath === "function"
       ? activeWhenOrPath
-      // activeWhen如果是一个路径，则保证成一个函数
-      : pathToActiveWhen(activeWhenOrPath)
+      : // activeWhen如果是一个路径，则保证成一个函数
+        pathToActiveWhen(activeWhenOrPath)
   );
 
   // 返回一个函数，函数返回一个 boolean 值
@@ -500,6 +547,13 @@ export function pathToActiveWhen(path) {
   };
 }
 
+/**
+ * // 根据用户输入的path生成对应的正则表达式
+ * 如：https://zh-hans.single-spa.js.org/docs/api/#triggerappchange，生成如下
+ * /^/https[^/]+/?//zh-hans\.single-spa\.js\.org/docs/api/#triggerappchange([/#].*)?$/i
+ * @param path
+ * @returns {RegExp}
+ */
 export function toDynamicPathValidatorRegex(path) {
   let lastIndex = 0,
     inDynamic = false,
