@@ -203,14 +203,18 @@ single-spa 会通过“生命周期”为这些过程提供钩子函数。
         - getCustomEventDetail
       - 第八步 遍历 appsToLoad.map
 
-        - toLoadPromise
+        - toLoadPromise 这里是 start 的核心逻辑，
           - tryToBootstrapAndMount
-            - 这里是 start 的核心逻辑，最终执行的是`appOrParcel.status = BOOTSTRAPPING;`（启动中，第四次改变状态）
-            - 执行 toMountPromise 正式挂载
-              - toMountPromise 中改变状态 `appOrParcel.status = MOUNTED;` （挂载完毕，第五次改变状态）
-              - 如果执行失败，会执行 toUnmountPromise ，这里面还会修改一次状态，状态修改为 UNMOUNTING
-              - toUnmountPromise 在判断 reasonableTime 后会再改变一次状态，改为 NOT_MOUNTED
-              - 这时候就是开启了一个循环
+            - toBootstrapPromise
+              - 最终执行的是`appOrParcel.status = BOOTSTRAPPING;`（启动中，第四次改变状态）
+              - reasonableTime，要求应用在合理的时间里执行生命周期。并在切换应用时传递全局的 props `这里对数据流传递很重要`
+                > 奇怪的是一直没见到 MOUNTING
+              - 第五次执行生命周期 `appOrParcel.status = NOT_MOUNTED;` （第五次改变状态）此时离挂载就剩一步了。
+              - 执行 toMountPromise 正式挂载
+                - toMountPromise 中改变状态 `appOrParcel.status = MOUNTED;` （挂载完毕，第六次改变状态）
+                - 如果执行失败，会执行 toUnmountPromise ，这里面还会修改一次状态，状态修改为 UNMOUNTING
+                - toUnmountPromise 在判断 reasonableTime 后会再改变一次状态，改为 NOT_MOUNTED
+                - 这时候就是开启了一个循环
 
       - 第九步 unmountAllPromise 执行
         - callAllEventListeners
@@ -241,3 +245,5 @@ single-spa 涵盖了切换浏览器 url 的 5 种方法，这几种方法最后�
 - 如果是通过 window.removeEventListener 调用的，监听 hashchange 和 popstate
 - 重写 window.history 的 pushState，页面的跳转（前进后退，点击等）不重新请求页面，可以创建历史
 - 重写 window.history 的 replaceState，页面的跳转（前进后退，点击等）不重新请求页面， 替换掉当前的 URL，不会产生历史。
+
+扩展的微前端资料：https://github.com/phodal/microfrontends

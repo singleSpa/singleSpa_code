@@ -2,6 +2,7 @@ import { assign } from "../utils/assign";
 import { getProps } from "../lifecycles/prop.helpers";
 import { objectType, toName } from "./app.helpers";
 import { formatErrorMessage } from "./app-errors";
+import Root from "../../examples/micro-frontend/packages/app1/src/root.component";
 
 const defaultWarningMillis = 1000;
 
@@ -146,9 +147,38 @@ export function reasonableTime(appOrParcel, lifecycle) {
     let finished = false;
     let errored = false;
 
-    // 这里很关键，之前一直奇怪props是怎么传递给子应用的，这里就是了，果然和之前的猜想是一样的
     // 是在执行生命周期函数时像子应用传递的props，所以之前执行loadApp传递props不会到子应用，
-    // 那么设计估计是给用户自己处理props的一个机会吧，因为那个时候处理的props已经是{ ...customProps, ...内置props }
+    // 子应用里一般会注册生命周期函数，并传递props，这里就是传递props的地方。
+    // 子应用的写法大致如下:
+    // const reactLifecycles = singleSpaReact({
+    //   React,
+    //   ReactDOM,
+    //   rootComponent: Root,
+    //   domElementGetter
+    // });
+    //
+    // export function bootstrap(props) {
+    //   return reactLifecycles.bootstrap(props);
+    // }
+    //
+    // export function mount(props) {
+    //   return reactLifecycles.mount(props);
+    // }
+    //
+    // export function unmount(props) {
+    //   return reactLifecycles.unmount(props);
+    // }
+    /**
+     * 通过getProps(appOrParcel)处理后，子应用的结构props大致如下
+     * const props = {
+     * mainStore: Store {Symbol(mobx did run lazy initializers): true, Symbol(mobx administration): ObservableObjectAdministration, changeState: ƒ}
+     * mountParcel: ƒ ()
+     * name: "app1"
+     * singleSpa: {…}
+     * } =  getProps(appOrParcel)
+     * @type {{singleSpa: {}, name: string}}
+     */
+
     appOrParcel[lifecycle](getProps(appOrParcel))
       .then((val) => {
         finished = true;
@@ -176,6 +206,7 @@ export function reasonableTime(appOrParcel, lifecycle) {
     );
 
     function maybeTimingOut(shouldError) {
+      // 既没有then，也没有catch说明是可能超时了
       if (!finished) {
         if (shouldError === true) {
           errored = true;

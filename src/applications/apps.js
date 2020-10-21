@@ -88,7 +88,8 @@ export function getAppChanges() {
           appsToLoad.push(app);
         }
         break;
-      // 需要被加载的应用 没有加载过 加载源代码
+      // 需要被加载的应用 没有加载过 加载源代码。因为初始化的时候状态是 NOT_LOADED，
+      // 根应用appShouldBeActive 此时会返回true, 因此根应用此时肯定会被加载
       case NOT_LOADED:
       case LOADING_SOURCE_CODE:
         if (appShouldBeActive) {
@@ -192,13 +193,13 @@ export function registerApplication(
       )
     );
 
-  // 将各个应用的配置信息都存放到 apps 数组中
+  // 所有要注册的应用都放在apps数组中，后面会操作这些应用，更改状态
   apps.push(
-    // 给每个应用增加一个内置属性
+    // 给当前应用增加一些额外的描述属性。后面会用到。
     assign(
       {
         loadErrorTime: null,
-        // 最重要的，应用的状态
+        // 这里是初始化应用的状态，即第一次的状态。所以这里是第一次修改应用状态
         status: NOT_LOADED,
         parcels: {},
         devtools: {
@@ -490,9 +491,9 @@ function sanitizeArguments(
     registration.customProps = customProps;
   }
 
-  // 如果第二个参数不是一个函数，比如是一个包含已经生命周期的对象，则包装成一个返回 promise 的函数
+  // 包装：loadApp如果不是函数，就用promise包装返回，以便同步执行下面的代码
   registration.loadApp = sanitizeLoadApp(registration.loadApp);
-  // 如果用户没有提供 props 对象，则给一个默认的空对象
+  // 包装：registerApplication的第四个参数，如果用户没有提供 props 对象，则给一个默认的空对象。没有提供props，是没有初始化的全局对象的。
   registration.customProps = sanitizeCustomProps(registration.customProps);
   // 保证activeWhen是一个返回boolean值的函数
   registration.activeWhen = sanitizeActiveWhen(registration.activeWhen);
@@ -515,8 +516,15 @@ function sanitizeCustomProps(customProps) {
   return customProps ? customProps : {};
 }
 
-// 得到一个函数，函数负责判断浏览器当前地址是否和用户给定的baseURL相匹配，
+// 得到一个函数，
+//
+//
 // 匹配返回true，否则返回false
+/**
+ * 函数负责判断浏览器当前地址是否和用户给定的baseURL相匹配，
+ * @param activeWhen 入参一般情况是一个函数，如 hashPrefix(prefix)
+ * @returns {function(*=): boolean} 返回值是函数，这个函数返回true或者false
+ */
 function sanitizeActiveWhen(activeWhen) {
   // []
   let activeWhenArray = Array.isArray(activeWhen) ? activeWhen : [activeWhen];

@@ -19,6 +19,8 @@ import {
   NOT_LOADED,
   SKIP_BECAUSE_BROKEN,
 } from "../applications/app.helpers.js";
+import { UNMOUNTING } from "../applications/app.helpers";
+import { reasonableTime } from "../applications/timeouts";
 
 let appChangeUnderway = false,
   peopleWaitingOnAppChange = [];
@@ -29,9 +31,9 @@ export function triggerAppChange() {
 }
 
 /**
- * 每次切换路由前，将应用分为4大类，
- * 首次加载时执行loadApp
- * 后续的路由切换执行performAppChange
+ * 每次切换路由前，将应用分为4大类，appsToUnload、appsToUnmount、appsToLoad、appsToMount
+ * 首次加载时执行 loadApp
+ * 后续的路由切换执行 performAppChange
  * 为四大类的应用分别执行相应的操作，比如更改app.status，执行生命周期函数
  * 所以，从这里也可以看出来，single-spa就是一个维护应用的状态机
  * @param {*} pendingPromises，这个参数只在finishUpAndReturn用到了，其它情况都是空数组
@@ -142,13 +144,31 @@ export function reroute(pendingPromises = [], eventArguments) {
       // 第三步
       // 移除应用 => 更改应用状态，执行unload生命周期函数，执行一些清理动作
       // 其实一般情况下这里没有真的移除应用
+      // toUnloadPromise 状态会设置为 UNLOADING
       const unloadPromises = appsToUnload.map(toUnloadPromise);
 
       // 第四步
       // 卸载应用，更改状态，执行unmount生命周期函数，卸载不需要的应用，挂载需要的应用
       const unmountUnloadPromises = appsToUnmount
+        /**
+         * 具体分析 toUnmountPromise
+         * toUnmountPromise 状态会设置为 UNMOUNTING
+         * 这里也会执行 reasonableTime，根据子应用的 unmount 生命周期更改 props
+         * 内部会再执行 unmountAppOrParcel，状态最终设置为 NOT_MOUNTED
+         * @type {(*|PromiseLike<T>|Promise<T>)[]}
+         */
         .map(toUnmountPromise)
-        // 卸载完然后移除，通过注册微任务的方式实现
+        /**
+         * 卸载完然后移除，通过注册微任务的方式实现
+         * 具体分析 toUnloadPromise
+         * 一般都是直接返回了 app
+         * 其它情况一般会返回 UNLOADING
+         * 这里也会执行 reasonableTime，根据子应用的 unload 生命周期更改 props
+         * 这里会执行一个 finishUnloadingApp
+         * finishUnloadingApp 会删除 app 的 name bootstrap，mount， unmount， unload
+         * 即把生命周期删了。如果下次再来就需要重新注册了
+         * 最后把状态设置为 NOT_LOADED 所有这里是回到了起点，下次加载就会重新加载一次
+         */
         .map((unmountPromise) => unmountPromise.then(toUnloadPromise));
 
       // 第五步，卸载应用
@@ -172,7 +192,7 @@ export function reroute(pendingPromises = [], eventArguments) {
        * 第八步
        * 这个原因其实是因为这些操作都是通过注册不同的微任务实现的，而JS是单线程执行，
        * 所以自然后续的只能等待前面的执行完了才能执行
-       * 这里一般情况下其实不会执行，只有手动执行了unloadApplication方法才会二次加载
+       *
        */
       const loadThenMountPromises = appsToLoad.map((app) => {
         return toLoadPromise(app).then((app) =>
@@ -341,10 +361,10 @@ export function reroute(pendingPromises = [], eventArguments) {
  */
 function tryToBootstrapAndMount(app, unmountAllPromise) {
   if (shouldBeActive(app)) {
-    // 一次判断为true，才会执行初始化
+    // 第一次判断为true，去执行初始化
     return toBootstrapPromise(app).then((app) =>
       unmountAllPromise.then(() =>
-        // 第二次, 两次都为true才会去挂载
+        // 第二次判断为true，去挂载
         shouldBeActive(app) ? toMountPromise(app) : app
       )
     );

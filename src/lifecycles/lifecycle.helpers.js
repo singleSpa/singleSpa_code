@@ -32,7 +32,7 @@ export function flattenFnArray(appOrParcel, lifecycle) {
   const name = toName(appOrParcel);
 
   return function (props) {
-    // 这里最后返回了一个promise链，这个操作似乎没啥必要，因为不可能出现同名的生命周期函数，所以，这里将生命周期函数放数组，没太理解目的是啥
+    // 这里主要是把props传入fn，看起来像是子应用生命周期中的那个props接收的props，实现各个应用之间数据透传。
     return fns.reduce((resultPromise, fn, index) => {
       return resultPromise.then(() => {
         // 执行生命周期函数，传递props给函数，并验证函数的返回结果，必须为promise

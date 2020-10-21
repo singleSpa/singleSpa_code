@@ -69,11 +69,20 @@ export function toLoadPromise(app) {
             )
           );
         }
-        // 这里很重要，这个val就是示例项目中加载函数中return出来的window.singleSpa，这个属性是子应用打包时设置的
+        // 这个val是子应用打包时注入的周期函数 大概结构如下
+        // {
+        //   bootstrap: ƒ bootstrap(props)
+        //   mount: ƒ mount(props)
+        //   unmount: ƒ unmount(props)
+        //   Symbol(Symbol.toStringTag): "Module"
+        //   __esModule: true
+        //   get bootstrap: ƒ ()
+        //   get mount: ƒ ()
+        //   get unmount: ƒ ()
+        // }
         return loadPromise.then((val) => {
           app.loadErrorTime = null;
 
-          // window.singleSpa
           appOpts = val;
 
           let validationErrMessage, validationErrCode;
@@ -150,6 +159,8 @@ export function toLoadPromise(app) {
           app.status = NOT_BOOTSTRAPPED;
           // 在app对象上挂载生命周期方法，每个方法都接收一个props作为参数，
           // 方法内部执行子应用导出的生命周期函数，并确保生命周期函数返回一个promise
+          // 其中 bootstrap mount unmount 是通过 single-spa-react 注入的
+          // unload 是在这里新生成的，
           app.bootstrap = flattenFnArray(appOpts, "bootstrap");
           app.mount = flattenFnArray(appOpts, "mount");
           app.unmount = flattenFnArray(appOpts, "unmount");

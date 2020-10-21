@@ -17,7 +17,7 @@ export const MOUNTING = "MOUNTING";
 export const MOUNTED = "MOUNTED";
 // 更新中
 export const UPDATING = "UPDATING";
-// 卸载中
+// 卸载中 UNMOUNTIN
 export const UNMOUNTING = "UNMOUNTING";
 // 没有加载中
 export const UNLOADING = "UNLOADING";
