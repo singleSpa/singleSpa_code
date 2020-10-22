@@ -96,6 +96,7 @@ export function reroute(pendingPromises = [], eventArguments) {
 
       return (
         // 保证所有加载子应用的微任务执行完成
+        // 加载完app后，会再调用 callAllEventListeners，监听浏览器路由事件
         Promise.all(loadPromises)
           .then(callAllEventListeners)
           // there are no mounted apps, before start() is called, so we always return []

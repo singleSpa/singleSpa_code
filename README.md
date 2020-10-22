@@ -233,16 +233,28 @@ single-spa 会通过“生命周期”为这些过程提供钩子函数。
 
 这里大概说一下核心原理
 
+我们先来看路由时怎么注册的
+
 首先，我们需要重写浏览器的路由切换事件，在路由切换时触发 reroute，
 这个 reroute 在 `singleSpa.registerApplication()` 和 `singleSpa.start(opts)`都有调用。
 
 我们重点看一下怎么重写的浏览器路由切换事件
 
-single-spa 涵盖了切换浏览器 url 的 5 种方法，这几种方法最后都会调用 reroute
+loadApps 最后一步调用了 callAllEventListeners
+callAllEventListeners 其实是执行了 callCapturedEventListeners
+
+这里主要看 `navigation-event.js` 文件
+callCapturedEventListeners 先注册了两个事件 hashchange popstate
+
+> 如果是在浏览器里会执行下面的逻辑。
+> single-spa 涵盖了切换浏览器 url 的 4 种方法，这几种方法最后都会调用 reroute。
+> 添加 监听 hashchange 事件。
+> 添加 监听 popstate 事件。
+> 重写 window.history.pushState。
+> 重写 window.history.replaceState。
 
 - hashchange，hash 路由发生改变时，会调用 reroute，更新应用的状态
 - popstate，用户点击浏览器的回退前进按钮触发（或者在 Javascript 代码中调用 history.back()， history.forward()）会触发。（需要注意的是调用 history.pushState()或 history.replaceState()不会触发 popstate 事件。）
-- 如果是通过 window.removeEventListener 调用的，监听 hashchange 和 popstate
 - 重写 window.history 的 pushState，页面的跳转（前进后退，点击等）不重新请求页面，可以创建历史
 - 重写 window.history 的 replaceState，页面的跳转（前进后退，点击等）不重新请求页面， 替换掉当前的 URL，不会产生历史。
 
