@@ -1,5 +1,21 @@
 # singleSpa_code
 
+阅读single-spa源码想要明白的问题
+
+1. single-spa是怎么加载子应用的
+
+2. single-spa是怎么监听路由变化的
+
+3. single-spa是怎么切换子应用的
+
+4. single-spa是怎么卸载不需要的应用的
+
+5. single-spa是怎么完成全局的数据通信的（props store）
+
+x 微前端怎么做css隔离
+
+x 微前端怎么做js隔离
+
 ![ing](./singleSpa生命周期.jpg)
 
 #### 先来看一下项目的文件结构
