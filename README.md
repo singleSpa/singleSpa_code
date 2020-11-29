@@ -1,4 +1,9 @@
-# singleSpa_code
+### 源码里面有大量注释，详细解读请进入源码看注释
+### 源码里面有大量注释，详细解读请进入源码看注释
+### 源码里面有大量注释，详细解读请进入源码看注释
+
+
+## singleSpa_code
 
 阅读single-spa源码想要明白的问题
 
@@ -89,39 +94,6 @@ x 微前端怎么做js隔离
   - removeErrorHandler 删除给定的错误处理程序函数。
   - mountRootParcel 将会创建并挂载一个 single-spa parcel.注意:Parcel 不会自动卸载。卸载需要手动触发。
 
-#### 微前端的一些基本概念
-
-- 在 single-spa 中，有以下三种微前端类型：
-
-  - single-spa applications:为一组特定路由渲染组件的微前端。
-  - single-spa parcels(沙箱): 不受路由控制，渲染组件的微前端。
-  - utility modules: 非渲染组件，用于暴露共享 javascript 逻辑的微前端。
-
-  一个 web 应用可能包含一种或多种类型的微前端
-
-  | 主题       | 应用程序                | 沙箱               | 公共模块                   |
-  | ---------- | ----------------------- | ------------------ | -------------------------- |
-  | 路由       | 有多个路由              | 无路由             | 无路由                     |
-  | API        | 声明 API                | 必要的 API         | 没有 single-spa API        |
-  | 渲染 UI    | 渲染 UI                 | 渲染 UI            | 不直接渲染 UI              |
-  | 生命周期   | single-spa 管理生命周期 | 自定义管理生命周期 | 没有生命周期               |
-  | 什么时候用 | 核心构建块              | 只需要与多个框架   | 用于共享公共逻辑或创建服务 |
-
-  > 每个微前端都是一个浏览器内的 JavaScript 模块(说明).
-
-  - 运行时模块，当被引用和导出时不会被构建工具编译，它直接被浏览器解析。它是与构建时模块的不同之处，他们在被浏览器解析前需要由 node_modules 提供并编译
-
-- 告诉 webpack 和 rollup 在构建期间保留一些依赖项，以便它们来自浏览器的方法是通过 webpack externals 和 rollup externals。
-
-  > 以下是我们的推荐:
-
-  - 每个 single-spa 应用程序都应该是一个浏览器内的 Javascript 模块
-  - 大型共享依赖(比如 react、vue 或 angular 库)应该都是浏览器内的模块。
-  - 其他的都应该是构建时模块。
-
-- JS 中的沙箱创建方式有哪些?
-
-- “挂载”(mounted)的概念指的是被注册的应用内容是否已展示在 DOM 上
 
 - 在一个 single-spa 页面，注册的应用会经过下载(loaded)、初始化(initialized)、被挂载(mounted)、卸载(unmounted)和 unloaded（被移除）等过程。
 
