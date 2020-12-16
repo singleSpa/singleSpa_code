@@ -1,20 +1,20 @@
 # singleSpa_code
 
-阅读single-spa源码想要明白的问题
+阅读 single-spa 源码想要明白的问题
 
-1. single-spa是怎么加载子应用的
+1. single-spa 是怎么加载子应用的
 
-2. single-spa是怎么监听路由变化的
+2. single-spa 是怎么监听路由变化的
 
-3. single-spa是怎么切换子应用的
+3. single-spa 是怎么切换子应用的
 
-4. single-spa是怎么卸载不需要的应用的
+4. single-spa 是怎么卸载不需要的应用的
 
-5. single-spa是怎么完成全局的数据通信的（props store）
+5. single-spa 是怎么完成全局的数据通信的（props store）
 
-x 微前端怎么做css隔离
+x 微前端怎么做 css 隔离
 
-x 微前端怎么做js隔离
+x 微前端怎么做 js 隔离
 
 ![ing](./singleSpa生命周期.jpg)
 
@@ -23,6 +23,10 @@ x 微前端怎么做js隔离
 - xxx.test 比较好理解，就是测试的意思
 - xxx.spec 中的 spec 是 specification 的缩写，表示规格，也就是 xxx 应该满足的规则，所以 xxx.spec.js 表示对 xxx 应该满足的规则。
 - xxx.unit 中的 unit 就是单元测试的意思。
+
+> 代码解读更多细节请看 src 所有 js 文件的注释
+> 代码解读更多细节请看 src 所有 js 文件的注释
+> 代码解读更多细节请看 src 所有 js 文件的注释
 
 ##### 主要看一下 src 下面的文件，核心代码都在 src 下面
 
@@ -96,28 +100,6 @@ x 微前端怎么做js隔离
   - single-spa applications:为一组特定路由渲染组件的微前端。
   - single-spa parcels(沙箱): 不受路由控制，渲染组件的微前端。
   - utility modules: 非渲染组件，用于暴露共享 javascript 逻辑的微前端。
-
-  一个 web 应用可能包含一种或多种类型的微前端
-
-  | 主题       | 应用程序                | 沙箱               | 公共模块                   |
-  | ---------- | ----------------------- | ------------------ | -------------------------- |
-  | 路由       | 有多个路由              | 无路由             | 无路由                     |
-  | API        | 声明 API                | 必要的 API         | 没有 single-spa API        |
-  | 渲染 UI    | 渲染 UI                 | 渲染 UI            | 不直接渲染 UI              |
-  | 生命周期   | single-spa 管理生命周期 | 自定义管理生命周期 | 没有生命周期               |
-  | 什么时候用 | 核心构建块              | 只需要与多个框架   | 用于共享公共逻辑或创建服务 |
-
-  > 每个微前端都是一个浏览器内的 JavaScript 模块(说明).
-
-  - 运行时模块，当被引用和导出时不会被构建工具编译，它直接被浏览器解析。它是与构建时模块的不同之处，他们在被浏览器解析前需要由 node_modules 提供并编译
-
-- 告诉 webpack 和 rollup 在构建期间保留一些依赖项，以便它们来自浏览器的方法是通过 webpack externals 和 rollup externals。
-
-  > 以下是我们的推荐:
-
-  - 每个 single-spa 应用程序都应该是一个浏览器内的 Javascript 模块
-  - 大型共享依赖(比如 react、vue 或 angular 库)应该都是浏览器内的模块。
-  - 其他的都应该是构建时模块。
 
 - JS 中的沙箱创建方式有哪些?
 
@@ -247,7 +229,7 @@ single-spa 会通过“生命周期”为这些过程提供钩子函数。
     - toUnmountPromise 会被执行， 这里状态会被重置为 `UNMOUNTING`
     - appsToLoad 会被执行
 
-这里大概说一下核心原理
+这里大概说一下更新的核心原理
 
 我们先来看路由时怎么注册的
 

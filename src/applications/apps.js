@@ -155,9 +155,9 @@ export function getAppStatus(appName) {
  * 例如: const a = {
     name,
     () => SystemJS.import(appURL),
-    hashPrefix(hash),
+    hashPrefix(hash), '' '/app1'  hash
     {
-      mainStore: storeModule
+      mainStore: storeModule main store
     }}
  */
 export function registerApplication(

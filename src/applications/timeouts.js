@@ -177,6 +177,7 @@ export function reasonableTime(appOrParcel, lifecycle) {
      * singleSpa: {…}
      * } =  getProps(appOrParcel)
      * @type {{singleSpa: {}, name: string}}
+     *
      */
 
     appOrParcel[lifecycle](getProps(appOrParcel))

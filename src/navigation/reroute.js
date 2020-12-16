@@ -193,7 +193,6 @@ export function reroute(pendingPromises = [], eventArguments) {
        * 第八步
        * 这个原因其实是因为这些操作都是通过注册不同的微任务实现的，而JS是单线程执行，
        * 所以自然后续的只能等待前面的执行完了才能执行
-       *
        */
       const loadThenMountPromises = appsToLoad.map((app) => {
         return toLoadPromise(app).then((app) =>
