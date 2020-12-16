@@ -1,4 +1,9 @@
-# singleSpa_code
+### 源码里面有大量注释，详细解读请进入源码看注释
+### 源码里面有大量注释，详细解读请进入源码看注释
+### 源码里面有大量注释，详细解读请进入源码看注释
+
+
+## singleSpa_code
 
 阅读 single-spa 源码想要明白的问题
 
@@ -92,18 +97,6 @@ x 微前端怎么做 js 隔离
   - addErrorHandler 添加处理程序，该处理程序将在应用在生命周期函数或激活函数期间每次抛出错误时调用。当没有错误处理程序时，single-spa 将错误抛出到窗口
   - removeErrorHandler 删除给定的错误处理程序函数。
   - mountRootParcel 将会创建并挂载一个 single-spa parcel.注意:Parcel 不会自动卸载。卸载需要手动触发。
-
-#### 微前端的一些基本概念
-
-- 在 single-spa 中，有以下三种微前端类型：
-
-  - single-spa applications:为一组特定路由渲染组件的微前端。
-  - single-spa parcels(沙箱): 不受路由控制，渲染组件的微前端。
-  - utility modules: 非渲染组件，用于暴露共享 javascript 逻辑的微前端。
-
-- JS 中的沙箱创建方式有哪些?
-
-- “挂载”(mounted)的概念指的是被注册的应用内容是否已展示在 DOM 上
 
 - 在一个 single-spa 页面，注册的应用会经过下载(loaded)、初始化(initialized)、被挂载(mounted)、卸载(unmounted)和 unloaded（被移除）等过程。
 
